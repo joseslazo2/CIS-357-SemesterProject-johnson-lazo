@@ -1,0 +1,6 @@
+Target dependency graph (3 targets)
+Target 'RoamUITests' in project 'Roam'
+➜ Explicit dependency on target 'Roam' in project 'Roam'
+Target 'RoamTests' in project 'Roam'
+➜ Explicit dependency on target 'Roam' in project 'Roam'
+Target 'Roam' in project 'Roam' (no dependencies)

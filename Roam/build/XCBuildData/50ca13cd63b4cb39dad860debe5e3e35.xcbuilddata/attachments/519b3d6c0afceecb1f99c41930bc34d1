@@ -1,0 +1,18 @@
+{
+  "" : {
+    "diagnostics" : "/Users/jojo/Desktop/Roam/build/Roam.build/Debug-iphoneos/RoamTests.build/Objects-normal/arm64/RoamTests-master.dia",
+    "emit-module-dependencies" : "/Users/jojo/Desktop/Roam/build/Roam.build/Debug-iphoneos/RoamTests.build/Objects-normal/arm64/RoamTests-master-emit-module.d",
+    "emit-module-diagnostics" : "/Users/jojo/Desktop/Roam/build/Roam.build/Debug-iphoneos/RoamTests.build/Objects-normal/arm64/RoamTests-master-emit-module.dia",
+    "swift-dependencies" : "/Users/jojo/Desktop/Roam/build/Roam.build/Debug-iphoneos/RoamTests.build/Objects-normal/arm64/RoamTests-master.swiftdeps"
+  },
+  "/Users/jojo/Desktop/Roam/RoamTests/RoamTests.swift" : {
+    "const-values" : "/Users/jojo/Desktop/Roam/build/Roam.build/Debug-iphoneos/RoamTests.build/Objects-normal/arm64/RoamTests.swiftconstvalues",
+    "dependencies" : "/Users/jojo/Desktop/Roam/build/Roam.build/Debug-iphoneos/RoamTests.build/Objects-normal/arm64/RoamTests.d",
+    "diagnostics" : "/Users/jojo/Desktop/Roam/build/Roam.build/Debug-iphoneos/RoamTests.build/Objects-normal/arm64/RoamTests.dia",
+    "index-unit-output-path" : "/Roam.build/Debug-iphoneos/RoamTests.build/Objects-normal/arm64/RoamTests.o",
+    "llvm-bc" : "/Users/jojo/Desktop/Roam/build/Roam.build/Debug-iphoneos/RoamTests.build/Objects-normal/arm64/RoamTests.bc",
+    "object" : "/Users/jojo/Desktop/Roam/build/Roam.build/Debug-iphoneos/RoamTests.build/Objects-normal/arm64/RoamTests.o",
+    "swift-dependencies" : "/Users/jojo/Desktop/Roam/build/Roam.build/Debug-iphoneos/RoamTests.build/Objects-normal/arm64/RoamTests.swiftdeps",
+    "swiftmodule" : "/Users/jojo/Desktop/Roam/build/Roam.build/Debug-iphoneos/RoamTests.build/Objects-normal/arm64/RoamTests~partial.swiftmodule"
+  }
+}
