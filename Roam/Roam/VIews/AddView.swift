@@ -5,6 +5,7 @@
 //  Created by Joshua Johnson on 3/10/25.
 //
 import SwiftUI
+import GooglePlaces
 
 
 struct AddView: View {
@@ -39,17 +40,23 @@ struct AddView: View {
                     Spacer()
                     
                     Button("Save") {
-                        let apiService = APIService()
-                        apiService.getCurrentPlaceName { (placeName, error) in
-                            if let error = error {
-                                print("Error fetching place name: \(error.localizedDescription)")
-                            } else if let placeName = placeName {
-                                print("Place name found \(placeName)")
-                                viewModel.saveLocation(name: placeName, latitude: location.coordinate.latitude, longitude: location.coordinate.longitude, time: location.timestamp.formatted())
-                            } else {
-                                print("Place name could not be determined.")
-                            }
-                        }
+                        // method 1
+                        // https://developers.google.com/maps/documentation/places/ios-sdk/migrate-details
+                        // A hotel in Saigon with an attribution.
+                        let placeID = "ChIJV4k8_9UodTERU5KXbkYpSYs"
+                        let client = GMSPlacesClient.shared()
+                        // Specify the place data types to return.
+                        let fields = [GMSPlaceProperty.name].map {$0.rawValue}
+
+                        // Create the GMSFetchPlaceRequest instance.
+                        let fetchPlaceRequest = GMSFetchPlaceRequest(placeID: placeID, placeProperties: fields, sessionToken: nil)
+
+                        client.fetchPlace(with: fetchPlaceRequest, callback: {
+                            (place: GMSPlace?, error: Error?) in
+                            guard let place, error == nil else { return }
+                            print("Place found: \(String(describing: place.name))")
+                            viewModel.saveLocation(name: place.name!, latitude: location.coordinate.latitude, longitude: location.coordinate.longitude, time: location.timestamp.formatted())
+                        })
                     }
                 }
             } else {

@@ -7,27 +7,26 @@
 
 import GooglePlaces
 
-class APIService {
-    private let placesClient = GMSPlacesClient.shared()
+func fetchPlaceIDFromCurrentLocation(completion: @escaping (String?) -> Void) {
+    let placesClient = GMSPlacesClient.shared()
     
-    func getCurrentPlaceName(completion: @escaping (String?, Error?) -> Void) {
-        print("APIService ran")
-        placesClient.findPlaceLikelihoodsFromCurrentLocation(withPlaceFields: .name) { (likelihoods, error) in
-            if let error = error {
-                // Handle error
-                print("err")
-                completion(nil, error)
-                return
-            }
-            
-            // Check for the first likelihood (most likely place)
-            if let likelihoods = likelihoods, let topLikelihood = likelihoods.first {
-                let placeName = topLikelihood.place.name
-                completion(placeName, nil)
-            } else {
-                // Handle no results
-                completion(nil, NSError(domain: "APIService", code: 404, userInfo: [NSLocalizedDescriptionKey: "No places found"]))
-            }
+    // Request place likelihoods (including the place ID)
+    placesClient.findPlaceLikelihoodsFromCurrentLocation(withPlaceFields: [.placeID, .name]) { (likelihoods, error) in
+        if let error = error {
+            print("Error fetching places: \(error.localizedDescription)")
+            completion(nil)
+            return
+        }
+        
+        // Check for the most likely place
+        if let likelihoods = likelihoods, let topLikelihood = likelihoods.first {
+            let placeID = topLikelihood.place.placeID
+            print("Place ID: \(placeID ?? "Unknown Place ID")")
+            completion(placeID)
+        } else {
+            print("No places found near the current location.")
+            completion(nil)
         }
     }
 }
+
