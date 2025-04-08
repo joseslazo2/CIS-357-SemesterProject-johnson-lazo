@@ -13,9 +13,6 @@ struct HomeView: View {
     @Binding var goToHomeView: Bool
     
     var body: some View {
-        // non moving map that has the users location in the center, moves like it is the user
-        // do last as it requires mapkit and we dont have that
-        
         Spacer()
         
         // ---------- NAVIGATION BAR ----------

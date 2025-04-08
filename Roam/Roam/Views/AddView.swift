@@ -6,7 +6,7 @@
 //
 import SwiftUI
 import GooglePlaces
-
+import GooglePlacesSwift
 struct AddView: View {
     @Binding var goToAddView: Bool
     @Binding var goToMemoryView: Bool
@@ -14,6 +14,7 @@ struct AddView: View {
     @ObservedObject var locationManager: LocationManager
     @ObservedObject var viewModel: LocationViewModel
     @State private var placeResults: [GMSPlace] = []
+    
     var body: some View {
         VStack {
             if let location = locationManager.location {
@@ -41,29 +42,36 @@ struct AddView: View {
                     
                     Button("Save") {
                         // method 1
-                        // https://developers.google.com/maps/documentation/places/ios-sdk/migrate-details
-                        // A hotel in Saigon with an attribution.
-//                        let placeID = "ChIJV4k8_9UodTERU5KXbkYpSYs"
-//                        let client = GMSPlacesClient.shared()
-//                        // Specify the place data types to return.
-//                        let fields = [GMSPlaceProperty.name].map {$0.rawValue}
+//                        let placesClient = GMSPlacesClient.shared()
+//                        let placeFields: GMSPlaceField = [.name]
+//                        placesClient.findPlaceLikelihoodsFromCurrentLocation(withPlaceFields: placeFields) { (placeLikelihoods, error) in
+//                            if let error = error {
+//                                print("Error fetching place likelihoods: \(error.localizedDescription)")
+//                                return
+//                            }
 //
-//                        // Create the GMSFetchPlaceRequest instance.
-//                        let fetchPlaceRequest = GMSFetchPlaceRequest(placeID: placeID, placeProperties: fields, sessionToken: nil)
-//
-//                        client.fetchPlace(with: fetchPlaceRequest, callback: {
-//                            (place: GMSPlace?, error: Error?) in
-//                            guard let place, error == nil else { return }
-//                            print("Place found: \(String(describing: place.name))")
-//                            viewModel.saveLocation(name: place.name!, latitude: location.coordinate.latitude, longitude: location.coordinate.longitude, time: location.timestamp.formatted())
-//                        })
+//                            if let likelihoods = placeLikelihoods {
+//                                for likelihood in likelihoods {
+//                                    let place = likelihood.place
+//                                    let confidence = likelihood.likelihood
+//                                    print("Place: \(place.name ?? "Unnamed")")
+//                                    print("Confidence: \(confidence)")
+//                                }
+//                            }
+//                        }
+
                         
+                        
+                        
+                        
+                        
+                        // method 2
                         let circularLocationRestriction = GMSPlaceCircularLocationOption(
                              CLLocationCoordinate2DMake(location.coordinate.latitude, location.coordinate.longitude),
-                             10
+                             2500
                          )
-                         let placeProperties = [GMSPlaceProperty.name].map { $0.rawValue }
-                         var request = GMSPlaceSearchNearbyRequest(
+                        let placeProperties = [GMSPlaceProperty.name].map { $0.rawValue }
+                        let request = GMSPlaceSearchNearbyRequest(
                              locationRestriction: circularLocationRestriction,
                              placeProperties: placeProperties
                          )
@@ -77,12 +85,11 @@ struct AddView: View {
                                  placeResults = results ?? []
                              }
                              for i in placeResults {
-                                 print(i)
+                                 print(i.name!)
                              }
-                             
-                             // TODO - update time
-                             viewModel.saveLocation(name: "josh's house", latitude: location.coordinate.latitude, longitude: location.coordinate.longitude, time: location.timestamp.formatted())
+                             viewModel.saveLocation(name: placeResults.first?.name ?? "error unwrapping", latitude: location.coordinate.latitude, longitude: location.coordinate.longitude, time: location.timestamp.formatted())
                          }
+                       
                     }
                 }
             } else {

@@ -4,8 +4,8 @@
 //
 //  Created by Joshua Johnson on 2/27/25.
 //
-
 import SwiftUI
+import GooglePlaces
 
 struct ContentView: View {
     @StateObject private var locationManager = LocationManager()

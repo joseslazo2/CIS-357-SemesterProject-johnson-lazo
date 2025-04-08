@@ -14,16 +14,6 @@ struct MemoryView: View {
     @Binding var goToGlobeView: Bool
     @ObservedObject var viewModel: LocationViewModel
     var body: some View {
-        // top right is a globe icon
-        // when pressed you go into globe view and see all the locations you've saved
-        
-        // card view most recent - oldest
-        // potentially have a sorting drop down
-        // nearest - furthest
-        // most unique (furthest away from all other entries or if starred)
-        
-        // TODO - figure out how to add items to the screen
-        // best way to store items so to not leak memory
         VStack {
             HStack {
                 Spacer()
