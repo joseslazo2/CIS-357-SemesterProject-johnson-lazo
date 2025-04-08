@@ -1,0 +1,26 @@
+TODO:
+    turn viewmodels into environment objects
+    implement firebase
+    get accurate location data
+    create listener + stopListening functions
+    add appDelegate code to RoamApp.swift
+    fix time issue -- look at hw6 code
+    figure out what needs the @MainActor tag to make sure we are updating the UI on the main thread
+    add firebase helper
+
+
+
+
+
+App ideas that still need to be implemented:
+    Home View:
+        update the UI so that something is going on in the main part of the screen, currently is empty
+    Globe View:
+        implement a globe with all the previously saved locations
+    Memory View:
+        implement a filter:
+            card view most recent - oldest
+            nearest - furthest
+            most unique (furthest away from all other entries or if starred)
+            if starred, show the star icon
+            would need to add stars to the data cards
