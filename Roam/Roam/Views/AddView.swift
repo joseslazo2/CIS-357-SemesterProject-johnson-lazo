@@ -7,6 +7,7 @@
 import SwiftUI
 import GooglePlaces
 import GooglePlacesSwift
+//jimport FirebaseStorage
 
 struct AddView: View {
     @Binding var goToAddView: Bool
@@ -15,6 +16,7 @@ struct AddView: View {
     @EnvironmentObject private var locationManager: LocationManager
     @EnvironmentObject private var viewModel: LocationViewModel
     @State private var placeResults: [GMSPlace] = []
+    @State private var currentPhoto: UIImage?
     
     var body: some View {
         VStack {
@@ -38,14 +40,27 @@ struct AddView: View {
                         Spacer()
                     }
                     .padding()
-                    Spacer()
+                    
+                    if let photo = currentPhoto {
+                        Image(uiImage: photo)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(maxHeight: 300)
+                            .padding()
+                    }
+                    
                     Spacer()
                     Button("Save") {
                         Task {
-                            if let placeName = await fetchNearbyPlace(location: location) {
-                                let tempLocation = LocationData(id: UUID(), name: placeName, latitude: location.coordinate.latitude, longitude: location.coordinate.longitude, date: Date())
-                                await addLocation(location: tempLocation)
-                            }
+                            let (placeName, _) = await fetchNearbyPlace(location: location)
+                            let tempLocation = LocationData(
+                                id: UUID(), 
+                                name: placeName, 
+                                latitude: location.coordinate.latitude, 
+                                longitude: location.coordinate.longitude, 
+                                date: Date()
+                            )
+                            await addLocation(location: tempLocation)
                         }
                     }
                 }
@@ -55,13 +70,13 @@ struct AddView: View {
         }
     }
     
-    private func fetchNearbyPlace(location: CLLocation) async -> String? {
+    private func fetchNearbyPlace(location: CLLocation) async -> (String?, String?) {
         return await withCheckedContinuation { continuation in
             let circularLocationRestriction = GMSPlaceCircularLocationOption(
                 CLLocationCoordinate2DMake(location.coordinate.latitude, location.coordinate.longitude),
                 30
             )
-            let placeProperties = [GMSPlaceProperty.name].map { $0.rawValue }
+            let placeProperties = [GMSPlaceProperty.name, GMSPlaceProperty.photos].map { $0.rawValue }
             let request = GMSPlaceSearchNearbyRequest(
                 locationRestriction: circularLocationRestriction,
                 placeProperties: placeProperties
@@ -70,13 +85,33 @@ struct AddView: View {
             GMSPlacesClient.shared().searchNearby(with: request) { results, error in
                 if let error = error {
                     print(error.localizedDescription)
-                    continuation.resume(returning: nil)
+                    continuation.resume(returning: (nil, nil))
                     return
                 }
+                
                 DispatchQueue.main.async {
                     self.placeResults = results ?? []
                 }
-                continuation.resume(returning: results?.first?.name)
+                
+                // Get the first photo metadata if available
+                if let photoMetadata = results?.first?.photos?.first {
+                    let fetchPhotoRequest = GMSFetchPhotoRequest(photoMetadata: photoMetadata, maxSize: CGSizeMake(4800, 4800))
+                    GMSPlacesClient.shared().fetchPhoto(with: fetchPhotoRequest, callback: {
+                        (photoImage: UIImage?, error: Error?) in
+                          guard let photoImage, error == nil else {
+                            print("Handle photo error: ")
+                            return
+                          }
+                          DispatchQueue.main.async {
+                              self.currentPhoto = photoImage
+                          }
+                        }
+                    )
+                    continuation.resume(returning: (results?.first?.name, nil))
+                } else {
+                    // No photos available
+                    continuation.resume(returning: (results?.first?.name, nil))
+                }
             }
         }
     }

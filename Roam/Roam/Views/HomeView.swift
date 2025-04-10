@@ -19,7 +19,7 @@ struct HomeView: View {
         VStack(spacing: 0) {
             Map() {
                 ForEach(viewModel.locations) { locationobj in
-                    Marker(locationobj.name, coordinate: CLLocationCoordinate2D(
+                    Marker(locationobj.name ?? "error getting name", coordinate: CLLocationCoordinate2D(
                         latitude: locationobj.latitude,
                         longitude: locationobj.longitude
                     ))

@@ -10,6 +10,7 @@ TODO:
     done - use async await for the fetch locations on google places api
     implemet feature so when history item is pressed it opens up and fills screen more, displaying more data
     update firebase permission to auth only
+    store image data in cache so that we dont have to retrieve from firebase or api when needed
 
 
 
