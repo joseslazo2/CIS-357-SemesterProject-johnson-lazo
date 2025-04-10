@@ -11,33 +11,26 @@ struct MemoryView: View {
     @Binding var goToAddView: Bool
     @Binding var goToMemoryView: Bool
     @Binding var goToHomeView: Bool
-    @Binding var goToGlobeView: Bool
-    @ObservedObject var viewModel: LocationViewModel
+    @EnvironmentObject var viewModel: LocationViewModel
+    
     var body: some View {
         VStack {
-            HStack {
-                Spacer()
-                Button(action: {
-                    goToGlobeView = true
-                    goToAddView = false
-                    goToMemoryView = false
-                    goToHomeView = false
-                }){
-                    Image(systemName: "globe.americas")
-                        .resizable()
-                        .frame(width: 30, height: 30)
-                }
-            }
-            .padding()
             Spacer()
-            List(viewModel.locations) { locationData in
-                VStack(alignment: .leading) {
-                    Text(locationData.name)
-                        .font(.headline)
-                    Text("Lat: \(locationData.latitude), Long: \(locationData.longitude)")
-                    Text("Date: \(locationData.time)")
-                        .font(.subheadline)
+            List {
+                ForEach(viewModel.locations) { locationItem in
+                    VStack(alignment: .leading) {
+                        Button(action: {
+                            // TODO - add action where when location item is pressed
+                        }){
+                            VStack {
+                                Text(locationItem.name)
+                                Text("Lat: \(locationItem.latitude), Long: \(locationItem.longitude)")
+                                Text("Date: \(locationItem.date)")
+                            }
+                        }
+                    }
                 }
+                .onDelete(perform: delete)
             }
             Spacer()
             
@@ -47,7 +40,6 @@ struct MemoryView: View {
                     goToHomeView = true
                     goToAddView = false
                     goToMemoryView = false
-                    goToGlobeView = false
                 }) {
                     Image(systemName: "house")
                         .resizable()
@@ -55,15 +47,12 @@ struct MemoryView: View {
                         .foregroundColor(Color.white)
                 }
                 
-                
                 Spacer()
-                
                 
                 Button(action: {
                     goToAddView = true
                     goToMemoryView = false
                     goToHomeView = false
-                    goToGlobeView = false
                 }){
                     Image(systemName: "plus.circle")
                         .resizable()
@@ -76,18 +65,28 @@ struct MemoryView: View {
                     goToMemoryView = true
                     goToHomeView = false
                     goToAddView = false
-                    goToGlobeView = false
                 }){
                     Image(systemName: "clock.fill")
                         .resizable()
                         .frame(width: 28, height: 28)
                         .foregroundColor(Color.white)
                 }
-                
             }
             .padding()
             .frame(maxWidth: .infinity, maxHeight: 45)
             .background(Color.gray)
+        }
+        .onAppear {
+            startListener(viewModel: viewModel)
+        }
+        .onDisappear {
+            stopListener()
+        }
+    }
+    func delete(at offsets: IndexSet) {
+        let location = viewModel.locations[offsets.first ?? 0]
+        Task {
+            await deleteLocation(location: location)
         }
     }
 }

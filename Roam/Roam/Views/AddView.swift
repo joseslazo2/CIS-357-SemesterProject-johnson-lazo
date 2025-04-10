@@ -7,12 +7,13 @@
 import SwiftUI
 import GooglePlaces
 import GooglePlacesSwift
+
 struct AddView: View {
     @Binding var goToAddView: Bool
     @Binding var goToMemoryView: Bool
     @Binding var goToHomeView: Bool
-    @ObservedObject var locationManager: LocationManager
-    @ObservedObject var viewModel: LocationViewModel
+    @EnvironmentObject private var locationManager: LocationManager
+    @EnvironmentObject private var viewModel: LocationViewModel
     @State private var placeResults: [GMSPlace] = []
     
     var body: some View {
@@ -39,61 +40,43 @@ struct AddView: View {
                     .padding()
                     Spacer()
                     Spacer()
-                    
                     Button("Save") {
-                        // method 1
-//                        let placesClient = GMSPlacesClient.shared()
-//                        let placeFields: GMSPlaceField = [.name]
-//                        placesClient.findPlaceLikelihoodsFromCurrentLocation(withPlaceFields: placeFields) { (placeLikelihoods, error) in
-//                            if let error = error {
-//                                print("Error fetching place likelihoods: \(error.localizedDescription)")
-//                                return
-//                            }
-//
-//                            if let likelihoods = placeLikelihoods {
-//                                for likelihood in likelihoods {
-//                                    let place = likelihood.place
-//                                    let confidence = likelihood.likelihood
-//                                    print("Place: \(place.name ?? "Unnamed")")
-//                                    print("Confidence: \(confidence)")
-//                                }
-//                            }
-//                        }
-
-                        
-                        
-                        
-                        
-                        
-                        // method 2
-                        let circularLocationRestriction = GMSPlaceCircularLocationOption(
-                             CLLocationCoordinate2DMake(location.coordinate.latitude, location.coordinate.longitude),
-                             2500
-                         )
-                        let placeProperties = [GMSPlaceProperty.name].map { $0.rawValue }
-                        let request = GMSPlaceSearchNearbyRequest(
-                             locationRestriction: circularLocationRestriction,
-                             placeProperties: placeProperties
-                         )
-                         
-                         GMSPlacesClient.shared().searchNearby(with: request) { results, error in
-                             if let error = error {
-                                 print(error.localizedDescription)
-                                 return
-                             }
-                             DispatchQueue.main.async {
-                                 placeResults = results ?? []
-                             }
-                             for i in placeResults {
-                                 print(i.name!)
-                             }
-                             viewModel.saveLocation(name: placeResults.first?.name ?? "error unwrapping", latitude: location.coordinate.latitude, longitude: location.coordinate.longitude, time: location.timestamp.formatted())
-                         }
-                       
+                        Task {
+                            if let placeName = await fetchNearbyPlace(location: location) {
+                                let tempLocation = LocationData(id: UUID(), name: placeName, latitude: location.coordinate.latitude, longitude: location.coordinate.longitude, date: Date())
+                                await addLocation(location: tempLocation)
+                            }
+                        }
                     }
                 }
             } else {
                 Text("Error Fetching location...")
+            }
+        }
+    }
+    
+    private func fetchNearbyPlace(location: CLLocation) async -> String? {
+        return await withCheckedContinuation { continuation in
+            let circularLocationRestriction = GMSPlaceCircularLocationOption(
+                CLLocationCoordinate2DMake(location.coordinate.latitude, location.coordinate.longitude),
+                30
+            )
+            let placeProperties = [GMSPlaceProperty.name].map { $0.rawValue }
+            let request = GMSPlaceSearchNearbyRequest(
+                locationRestriction: circularLocationRestriction,
+                placeProperties: placeProperties
+            )
+            
+            GMSPlacesClient.shared().searchNearby(with: request) { results, error in
+                if let error = error {
+                    print(error.localizedDescription)
+                    continuation.resume(returning: nil)
+                    return
+                }
+                DispatchQueue.main.async {
+                    self.placeResults = results ?? []
+                }
+                continuation.resume(returning: results?.first?.name)
             }
         }
     }

@@ -6,6 +6,13 @@
 //
 import Foundation
 
+@MainActor
 class LocationViewModel: ObservableObject {
     @Published var locations: [LocationData] = []
+
+    func addLocationItem(location: LocationData) {
+        Task {
+            await addLocation(location: location)
+        }
+    }
 }

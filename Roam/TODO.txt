@@ -1,12 +1,15 @@
 TODO:
-    turn viewmodels into environment objects
-    implement firebase
-    get accurate location data
-    create listener + stopListening functions
-    add appDelegate code to RoamApp.swift
-    fix time issue -- look at hw6 code
-    figure out what needs the @MainActor tag to make sure we are updating the UI on the main thread
-    add firebase helper
+    done - turn viewmodels into environment objects
+    done - implement firebase
+    done - get accurate location data
+    done - create listener + stopListening functions
+    done - add appDelegate code to RoamApp.swift
+    done - fix time issue -- look at hw6 code
+    done - figure out what needs the @MainActor tag to make sure we are updating the UI on the main thread
+    done - add firebase helper
+    done - use async await for the fetch locations on google places api
+    implemet feature so when history item is pressed it opens up and fills screen more, displaying more data
+    update firebase permission to auth only
 
 
 
@@ -15,8 +18,6 @@ TODO:
 App ideas that still need to be implemented:
     Home View:
         update the UI so that something is going on in the main part of the screen, currently is empty
-    Globe View:
-        implement a globe with all the previously saved locations
     Memory View:
         implement a filter:
             card view most recent - oldest

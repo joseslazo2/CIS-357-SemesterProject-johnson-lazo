@@ -11,6 +11,6 @@ struct LocationData: Identifiable, Codable {
     var name: String // this has to come from google places api but itll be added manually for now
     var latitude: Double
     var longitude: Double
-    var time: String
+    var date = Date()
     // want to add photo but not sure if thats possible yet
 }
