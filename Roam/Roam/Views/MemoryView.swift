@@ -13,7 +13,9 @@ struct MemoryView: View {
     @Binding var goToMemoryView: Bool
     @Binding var goToHomeView: Bool
     @EnvironmentObject var viewModel: LocationViewModel
-    @State private var images: [UUID: UIImage] = [:]
+    @State private var loadingImages = [UUID: Bool]()
+    @State private var images = [UUID: UIImage]()
+    @State private var selectedLocation: LocationData? = nil
     
     var body: some View {
         VStack {
@@ -22,36 +24,26 @@ struct MemoryView: View {
                 ForEach(viewModel.locations) { locationItem in
                     VStack(alignment: .leading) {
                         Button(action: {
-                            // TODO - add action where when location item is pressed
-                        }){
-                            VStack {
-                                Text(locationItem.name ?? "error getting name")
-                                Text("Lat: \(locationItem.latitude), Long: \(locationItem.longitude)")
-                                Text("Date: \(locationItem.date)")
-                                /*
-                                 if let photo = currentPhoto {
-                                     Image(uiImage: photo)
-                                         .resizable()
-                                         .scaledToFit()
-                                         .frame(maxHeight: 300)
-                                         .padding()
-                                 }
-                                 
-                                 let fetchPhotoRequest = GMSFetchPhotoRequest(photoMetadata: photoMetadata, maxSize: CGSizeMake(4800, 4800))
-                                 GMSPlacesClient.shared().fetchPhoto(with: fetchPhotoRequest, callback: {
-                                     (photoImage: UIImage?, error: Error?) in
-                                       guard let photoImage, error == nil else {
-                                         print("Handle photo error: ")
-                                         return
-                                       }
-                                       DispatchQueue.main.async {
-                                           self.currentPhoto = photoImage
-                                       }
-                                     }
-                                 )
-                                 */
+                            // shows the detail card
+                            selectedLocation = locationItem
+                            // Checks if the image is loaded, if not, it will load the image
+                            if images[locationItem.id] == nil && loadingImages[locationItem.id] != true {
+                                if let imageUrl = locationItem.imageUrl {
+                                    loadImage(from: imageUrl, for: locationItem.id)
+                                }
                             }
+                        }){
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text(locationItem.name ?? "error getting name")
+                                    .font(.headline)
+
+                                Text("Date: \(formatDate(locationItem.date))")
+                                    .font(.caption)
+                            }
+                            .padding(.vertical, 8)
+                            .frame(maxWidth: .infinity, alignment: .leading)
                         }
+                        .buttonStyle(PlainButtonStyle())
                     }
                 }
                 .onDelete(perform: delete)
@@ -100,6 +92,49 @@ struct MemoryView: View {
             .frame(maxWidth: .infinity, maxHeight: 45)
             .background(Color.gray)
         }
+        // item: is used instead of isPresented, was causing race conditions
+        .sheet(item: $selectedLocation) { location in
+            VStack {
+                Text(location.name ?? "Location")
+                    .font(.title)
+                    .padding()
+                
+                if let image = images[location.id] {
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFit()
+                        .padding()
+                } else if loadingImages[location.id] == true {
+                    ProgressView()
+                        .frame(maxWidth: .infinity, maxHeight: 300)
+                } else if location.imageUrl != nil {
+                    Button("Load Image") {
+                        if let imageUrl = location.imageUrl {
+                            loadImage(from: imageUrl, for: location.id)
+                        }
+                    }
+                    .padding()
+                } else {
+                    Text("No image available")
+                        .padding()
+                }
+                
+                Text("Date: \(formatDate(location.date))")
+                
+                Text("Location: \(location.latitude), \(location.longitude)")
+                    .padding(.bottom)
+                
+                Button("Close") {
+                    selectedLocation = nil
+                }
+                .padding()
+                .background(Color.blue)
+                .foregroundColor(.white)
+                .cornerRadius(8)
+                .padding(.bottom)
+            }
+        
+        }
         .onAppear {
             startListener(viewModel: viewModel)
         }
@@ -107,6 +142,7 @@ struct MemoryView: View {
             stopListener()
         }
     }
+    
     func delete(at offsets: IndexSet) {
         let location = viewModel.locations[offsets.first ?? 0]
         Task {
@@ -114,26 +150,42 @@ struct MemoryView: View {
         }
     }
     
-    /*
-    private func fetchPhoto(reference: String, locationId: UUID) {
-        let photoMetadata = GMSPlacePhotoMetadata(reference: reference)
-        let fetchPhotoRequest = GMSFetchPhotoRequest(
-            photoMetadata: photoMetadata,
-            maxSize: CGSize(width: 1200, height: 1200)
-        )
+    private func formatDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .short
+        return formatter.string(from: date)
+    }
+    
+    private func loadImage(from urlString: String, for locationId: UUID) {
+        // Set loading state
+        loadingImages[locationId] = true
         
-        GMSPlacesClient.shared().fetchPhoto(with: fetchPhotoRequest) { image, error in
+        guard let url = URL(string: urlString) else {
+            loadingImages[locationId] = false
+            return
+        }
+        
+        URLSession.shared.dataTask(with: url) { data, response, error in
             if let error = error {
-                print("Error loading photo: \(error.localizedDescription)")
+                print("Error loading image: \(error.localizedDescription)")
+                DispatchQueue.main.async {
+                    loadingImages[locationId] = false
+                }
                 return
             }
             
-            if let image = image {
+            guard let data = data, let image = UIImage(data: data) else {
                 DispatchQueue.main.async {
-                    images[locationId] = image
+                    loadingImages[locationId] = false
                 }
+                return
             }
-        }
+            
+            DispatchQueue.main.async {
+                images[locationId] = image
+                loadingImages[locationId] = false
+            }
+        }.resume()
     }
-    */
 }

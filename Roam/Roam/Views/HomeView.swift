@@ -31,10 +31,10 @@ struct HomeView: View {
             // ---------- NAVIGATION BAR ----------
             HStack {
                 Button(action: {
-                    goToHomeView = true
-                    goToAddView = false
-                    goToMemoryView = false
-                }) {
+                        goToHomeView = true
+                        goToAddView = false
+                        goToMemoryView = false
+                    }) {
                     Image(systemName: "house")
                         .resizable()
                         .frame(width: 30, height: 30)

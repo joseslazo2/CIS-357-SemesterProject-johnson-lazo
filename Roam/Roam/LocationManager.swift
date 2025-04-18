@@ -8,7 +8,6 @@
 /*
  Got this from:
  https://www.andyibanez.com/posts/using-corelocation-with-swiftui/
- ObserableObject allows this class to be observed by swiftui views for changes
  CLLocationManagerDelegate is a protocol - updates users location
  */
 import CoreLocation
