@@ -11,7 +11,7 @@ import Firebase
 // https://developer.apple.com/documentation/uikit/uiapplicationdelegate/application(_:didfinishlaunchingwithoptions:)
 class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
-        GMSPlacesClient.provideAPIKey("AIzaSyC3jlrYdQX610LLqcvmNoVZxMU1-8BzZzU")
+        GMSPlacesClient.provideAPIKey("HAHA")
         FirebaseApp.configure()
         print("AppDelegate's didFinishLaunchingWithOptions is running")
         return true
